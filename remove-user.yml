@@ -4,6 +4,7 @@
   become: yes
   tasks:
     - name: Remove the user 'testuser'
+      become: yes
       ansible.builtin.user:
         name: testuser
         state: absent
