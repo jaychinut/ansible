@@ -1,0 +1,7 @@
+- name: Remove the user 'testuser'
+  hosts: all
+  become: yes
+  ansible.builtin.user:
+    name: testuser
+    state: absent
+    remove: yes
