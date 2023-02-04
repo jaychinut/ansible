@@ -1,0 +1,23 @@
+---
+- hosts: webservers
+  become: yes
+  tasks:
+  - name: install certbot
+    package:
+      name: certbot
+      state: present
+  - name: Obtain SSL certificate
+    command: certbot certonly --standalone -d {{ domain_name }}
+    register: cert_result
+  - name: Copy SSL certificate files
+    copy:
+      src: /etc/letsencrypt/live/{{ domain_name }}
+      dest: /etc/nginx/ssl
+      mode: 0400
+    when: cert_result is changed
+  - name: Configure server to use SSL certificate
+    lineinfile:
+      dest: /etc/nginx/sites-available/{{ domain_name }}
+      line: '    ssl_certificate /etc/nginx/ssl/{{ domain_name }}/fullchain.pem;'
+      insertafter: '#SSL configuration'
+    when: cert_result is changed
