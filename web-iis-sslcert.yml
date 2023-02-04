@@ -1,0 +1,21 @@
+---
+- hosts: webservers
+  become: yes
+  tasks:
+  - name: install certbot
+    win_chocolatey:
+      name: certbot-iis
+      state: present
+  - name: Obtain SSL certificate
+    win_certbot:
+      email: {{ email_address }}
+      domain: {{ domain_name }}
+    register: cert_result
+  - name: Configure server to use SSL certificate
+    win_iis_website_binding:
+      name: {{ website_name }}
+      host_header: {{ domain_name }}
+      port: 443
+      certificate_hash: {{ cert_result.thumbprint }}
+      certificate_store: WebHosting
+    when: cert_result is changed
